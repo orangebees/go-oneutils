@@ -13,6 +13,7 @@ import (
 
 const Separator = string(filepath.Separator)
 
+// TarDirToByteBuffer tar归档目录，并写入到ByteBuffer中
 func TarDirToByteBuffer(rpath string, compress string) (*bytebufferpool.ByteBuffer, error) {
 	b := bytebufferpool.Get()
 	defer bytebufferpool.Put(b)
@@ -50,13 +51,13 @@ func TarDirToByteBuffer(rpath string, compress string) (*bytebufferpool.ByteBuff
 	b2 := bytebufferpool.Get()
 	switch compress {
 	case "br":
-		_, err := fasthttp.WriteBrotliLevel(b2, b.B, fasthttp.CompressBrotliBestCompression)
+		_, err = fasthttp.WriteBrotliLevel(b2, b.B, fasthttp.CompressBrotliBestCompression)
 		if err != nil {
 			return nil, err
 		}
 		return b2, nil
 	case "gz":
-		_, err := fasthttp.WriteGzipLevel(b2, b.B, fasthttp.CompressBestCompression)
+		_, err = fasthttp.WriteGzipLevel(b2, b.B, fasthttp.CompressBestCompression)
 		if err != nil {
 			return nil, err
 		}
