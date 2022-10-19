@@ -24,3 +24,13 @@ func RandBytes32() []byte {
 func RandIntn(num uint32) int {
 	return int(FastRand() % num)
 }
+
+// UuidV4 UUIDv4
+func UuidV4() []byte {
+	b := make([]byte, 36)
+	for i := 0; i < 36; i++ {
+		b[i] = hextable[RandIntn(35)]
+	}
+	b[8], b[13], b[14], b[18], b[19], b[23] = '-', '-', '4', '-', 'a', '-'
+	return b
+}

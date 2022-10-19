@@ -2,6 +2,7 @@ package PathHandle
 
 import (
 	"crypto/sha512"
+	"errors"
 	"github.com/cespare/xxhash/v2"
 	"github.com/orangebees/go-oneutils/Convert"
 	"github.com/orangebees/go-oneutils/random"
@@ -47,22 +48,68 @@ func UnifyPathBackSlashSeparator(b []byte) {
 
 // Bucket256AllocatedUseSha512  使用sha512作为hash算法为文件分配桶（256个桶下）
 //
-//	mod取自hash转换为可见字符串之前的值
+//		mod取自hash转换为可见字符串之后的值
+//	 已优化 可以被内联
 func Bucket256AllocatedUseSha512(fileBytes []byte) (hash string, mod string) {
-	sha512hash, dst, c := sha512.Sum512(fileBytes), make([]byte, 128), make([]byte, 2)
-	for i, j := 0, 0; i < 64; i++ {
-		dst[j], dst[j+1] = hextable[sha512hash[i]>>4], hextable[sha512hash[i]&0x0f]
+	sha512hash, dst, j := sha512.Sum512(fileBytes), make([]byte, 128), 0
+	//转为可见字符
+	for _, v := range sha512hash {
+		dst[j], dst[j+1] = hextable[v>>4], hextable[v&0x0f]
 		j += 2
 	}
-	t := xxhash.Sum64(dst) % 256
-	t1, t2 := t%16, t>>3
-	c[0], c[1] = hextable[t2], hextable[t1]
-	hash, mod = string(dst), string(c)
+	//
+	t, hash := xxhash.Sum64(dst)%256, string(dst)
+	mod = string([]byte{hextable[t>>3], hextable[t%16]})
 	return
 }
 func FilePathToDirPath(str string, s string) string {
 
 	return str
+}
+
+// KeepDirsExist  确保某些目录一定存在
+func KeepDirsExist(paths ...string) error {
+	for i := 0; i < len(paths); i++ {
+		err := KeepDirExist(paths[i])
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// KeepDirExist 确保某目录一定存在
+func KeepDirExist(path string) error {
+	f, err := os.Stat(path)
+	if err == nil {
+		//存在
+		if f.IsDir() {
+			//是已经存在的目录 不处理
+			return nil
+		}
+		//是文件,返回错误
+		return errors.New("file exists instead of directory")
+	}
+	if os.IsNotExist(err) {
+		//不存在
+		err = os.MkdirAll(path, os.ModePerm)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	//其他错误
+	return err
+}
+func EncodeToString(src [64]byte) string {
+	dst := make([]byte, 128)
+	j := 0
+	for _, v := range src {
+		dst[j] = hextable[v>>4]
+		dst[j+1] = hextable[v&0x0f]
+		j += 2
+	}
+	return string(dst)
 }
 
 // URLToLocalDirPath uri转本地相对路径
