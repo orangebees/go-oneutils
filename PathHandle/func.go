@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/cespare/xxhash/v2"
 	"github.com/orangebees/go-oneutils/Convert"
-	"github.com/orangebees/go-oneutils/random"
+	"github.com/orangebees/go-oneutils/Random"
 	"os"
 	"path/filepath"
 	"strings"
@@ -46,9 +46,18 @@ func UnifyPathBackSlashSeparator(b []byte) {
 	}
 }
 
+// UnifyPathBackLocalSeparator 统一路径分隔符为当前系统斜杠
+func UnifyPathBackLocalSeparator(b []byte) {
+	for i := 0; i < len(b); i++ {
+		if b[i] == '/' || b[i] == '\\' {
+			b[i] = filepath.Separator
+		}
+	}
+}
+
 // Bucket256AllocatedUseSha512  使用sha512作为hash算法为文件分配桶（256个桶下）
 //
-//		mod取自hash转换为可见字符串之后的值
+//	mod取自hash转换为可见字符串之后的值
 //	 已优化 可以被内联
 func Bucket256AllocatedUseSha512(fileBytes []byte) (hash string, mod string) {
 	sha512hash, dst, j := sha512.Sum512(fileBytes), make([]byte, 128), 0
@@ -59,12 +68,8 @@ func Bucket256AllocatedUseSha512(fileBytes []byte) (hash string, mod string) {
 	}
 	//
 	t, hash := xxhash.Sum64(dst)%256, string(dst)
-	mod = string([]byte{hextable[t>>3], hextable[t%16]})
+	mod = string([]byte{hextable[t>>4], hextable[t%16]})
 	return
-}
-func FilePathToDirPath(str string, s string) string {
-
-	return str
 }
 
 // KeepDirsExist  确保某些目录一定存在
@@ -101,16 +106,6 @@ func KeepDirExist(path string) error {
 	//其他错误
 	return err
 }
-func EncodeToString(src [64]byte) string {
-	dst := make([]byte, 128)
-	j := 0
-	for _, v := range src {
-		dst[j] = hextable[v>>4]
-		dst[j+1] = hextable[v&0x0f]
-		j += 2
-	}
-	return string(dst)
-}
 
 // URLToLocalDirPath uri转本地相对路径
 func URLToLocalDirPath(url string) string {
@@ -129,6 +124,35 @@ func URLToLocalDirPath(url string) string {
 		}
 	}
 	return string(tmpbytes)
+}
+
+// URLToLocalDirPathNoHost  uri转本地相对路径不带域名
+func URLToLocalDirPathNoHost(url string) string {
+	tmp := strings.Split(url, "://")
+	tmplen := len(tmp)
+	var tmpbytes []byte
+	if tmplen == 2 {
+		tmpbytes = append(tmpbytes, tmp[1]...)
+
+	} else {
+		tmpbytes = append(tmpbytes, tmp[0]...)
+	}
+	hostflag := 0
+	hostindex := 0
+	for i := 0; i < len(tmpbytes); i++ {
+		if tmpbytes[i] == '/' {
+			hostflag++
+			if hostflag == 1 {
+				hostindex = i
+			}
+			tmpbytes[i] = filepath.Separator
+
+		}
+	}
+	if hostflag == 0 {
+		return ""
+	}
+	return string(tmpbytes[hostindex:])
 }
 
 // PathExists 路径是否存在

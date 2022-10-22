@@ -50,11 +50,12 @@ func IsSuccess(string2 string) bool {
 	return false
 }
 
-// EasyJsonSuccess  成功响应
+// EasyJsonSuccess  成功响应,data建议传指针类型的值
 func EasyJsonSuccess(data Fetch.EasyJsonSerialization) string {
 	if data == nil {
 		return DefaultSuccessResponse
 	}
+
 	marshal, err := data.MarshalJSON()
 	if err != nil {
 		return ""

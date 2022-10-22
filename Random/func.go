@@ -25,7 +25,9 @@ func RandIntn(num uint32) int {
 	return int(FastRand() % num)
 }
 
-// UuidV4 UUIDv4
+// UuidV4
+//
+//	UUIDv4
 func UuidV4() []byte {
 	b := make([]byte, 36)
 	for i := 0; i < 36; i++ {

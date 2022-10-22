@@ -14,13 +14,17 @@ type EasyJsonSerialization interface {
 
 type Option func(req *fasthttp.Request)
 
+// UseGetOption 设置GET请求
 func UseGetOption(req *fasthttp.Request) {
 	req.Header.SetMethod("GET")
 }
 
+// UseCompressOption 设置请求优先使用压缩
 func UseCompressOption(req *fasthttp.Request) {
 	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 }
+
+// SetHostOption 设置host头
 func SetHostOption(req *fasthttp.Request) {
 	parse, err := url.Parse(Convert.B2S(req.RequestURI()))
 	if err != nil {
@@ -83,7 +87,7 @@ func Text(endpoint string, reqData string, options ...Option) (string, error) {
 	return string(body), nil
 }
 
-// EasyJson 使用easyjson的json请求与响应
+// EasyJson 使用easyJson接口的json请求与响应
 func EasyJson(endpoint string, reqData EasyJsonSerialization, respData EasyJsonSerialization, options ...Option) error {
 	jsonbytes, err := reqData.MarshalJSON()
 	if err != nil {
