@@ -308,7 +308,7 @@ func (s FileStore) NewFileInfoMapFromDir(absPath string) (FileInfoMap, error) {
 // BuildDir 通过FileInfoMap构建包目录在工作区构建目录下
 func (s FileStore) BuildDir(fim FileInfoMap, pkgDir string) error {
 	//构建目录
-	buildpath := s.build + Separator + pkgDir
+	buildpath := s.build + Separator + PathHandle.URLToLocalDirPath(pkgDir)
 	exists, err := PathHandle.PathExists(buildpath)
 	if err != nil {
 		return err
@@ -384,7 +384,7 @@ func (s FileStore) Link(pkgDir, targetAbsPath string) error {
 	if err != nil {
 		return err
 	}
-	err = os.Symlink(s.build+Separator+pkgDir, targetAbsPath)
+	err = os.Symlink(s.build+Separator+PathHandle.URLToLocalDirPath(pkgDir), targetAbsPath)
 	if err != nil {
 		return err
 	}
@@ -407,11 +407,17 @@ func (s FileStore) VerifyDir(fim FileInfoMap, absPath string) (bool, error) {
 
 // GetMetadataPath 获取metadata的理论路径
 func (s FileStore) GetMetadataPath(pkgDir string) (string, error) {
-	p := s.metadata + Separator + pkgDir + ".json"
+	p := s.metadata + Separator + PathHandle.URLToLocalDirPath(pkgDir)
+	//+ ".json"
 	dir, _ := filepath.Split(p)
 	err := PathHandle.KeepDirExist(dir)
 	if err != nil {
 		return "", err
 	}
 	return p, nil
+}
+
+// DirIsExist 检测pkgDir存在
+func (s FileStore) DirIsExist(pkgDir string) (bool, error) {
+	return PathHandle.PathExists(s.build + Separator + PathHandle.URLToLocalDirPath(pkgDir))
 }
