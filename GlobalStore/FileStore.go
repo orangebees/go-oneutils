@@ -33,7 +33,8 @@ type FileStore struct {
 	bucketAllocationMethod int
 	//hash算法 建议sha512
 	bucketHashType string
-	ignoreFunc     []IgnoreFunc
+	//忽略规则方法
+	ignoreFunc []IgnoreFunc
 }
 type FileStoreConfig struct {
 	//工作根目录
@@ -197,12 +198,6 @@ func (s FileStore) AddDir(absPath string) (FileInfoMap, error) {
 			afi.Mode = int(info.Mode())
 			afi.Size = info.Size()
 			fim[string(rp)] = afi
-			//	FileInfo{
-			//	CheckedAt: info.ModTime().Unix(),
-			//	Integrity: it,
-			//	Mode:      int(info.Mode()),
-			//	Size:      info.Size(),
-			//}
 			switch s.bucketAllocationMethod {
 			case hashStrPrefix:
 
@@ -291,12 +286,6 @@ func (s FileStore) NewFileInfoMapFromDir(absPath string) (FileInfoMap, error) {
 			afi.Mode = int(info.Mode())
 			afi.Size = info.Size()
 			fim[string(rp)] = afi
-			//fim[string(rp)] = FileInfo{
-			//	CheckedAt: info.ModTime().Unix(),
-			//	Integrity: NewIntegrity(s.bucketHashType, file),
-			//	Mode:      int(info.Mode()),
-			//	Size:      info.Size(),
-			//}
 			return nil
 		})
 	if err != nil {
@@ -309,7 +298,7 @@ func (s FileStore) NewFileInfoMapFromDir(absPath string) (FileInfoMap, error) {
 func (s FileStore) BuildDir(fim FileInfoMap, pkgDir string) error {
 	//构建目录
 	buildpath := s.build + Separator + PathHandle.URLToLocalDirPath(pkgDir)
-	exists, err := PathHandle.PathExists(buildpath)
+	exists, err := PathHandle.DirExist(buildpath)
 	if err != nil {
 		return err
 	}
@@ -406,9 +395,8 @@ func (s FileStore) VerifyDir(fim FileInfoMap, absPath string) (bool, error) {
 }
 
 // GetMetadataPath 获取metadata的理论路径
-func (s FileStore) GetMetadataPath(pkgDir string) (string, error) {
-	p := s.metadata + Separator + PathHandle.URLToLocalDirPath(pkgDir)
-	//+ ".json"
+func (s FileStore) GetMetadataPath(pkgDir string, fileType string) (string, error) {
+	p := s.metadata + Separator + PathHandle.URLToLocalDirPath(pkgDir) + "." + fileType
 	dir, _ := filepath.Split(p)
 	err := PathHandle.KeepDirExist(dir)
 	if err != nil {
@@ -419,5 +407,5 @@ func (s FileStore) GetMetadataPath(pkgDir string) (string, error) {
 
 // DirIsExist 检测pkgDir存在
 func (s FileStore) DirIsExist(pkgDir string) (bool, error) {
-	return PathHandle.PathExists(s.build + Separator + PathHandle.URLToLocalDirPath(pkgDir))
+	return PathHandle.DirExist(s.build + Separator + PathHandle.URLToLocalDirPath(pkgDir))
 }

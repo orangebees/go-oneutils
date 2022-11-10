@@ -155,8 +155,8 @@ func URLToLocalDirPathNoHost(url string) string {
 	return string(tmpbytes[hostindex:])
 }
 
-// PathExists 路径是否存在
-func PathExists(path string) (bool, error) {
+// PathExist 路径是否存在
+func PathExist(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
@@ -165,4 +165,34 @@ func PathExists(path string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+// FileExist  文件是否存在
+func FileExist(path string) (bool, error) {
+	f, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	if f.IsDir() {
+		return false, errors.New("it is a Dir")
+	}
+	return true, nil
+}
+
+// DirExist 目录是否存在
+func DirExist(path string) (bool, error) {
+	f, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	if !f.IsDir() {
+		return false, errors.New("it is a File")
+	}
+	return true, nil
 }
