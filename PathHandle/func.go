@@ -96,6 +96,7 @@ func KeepDirExist(path string) error {
 		return errors.New("file exists instead of directory")
 	}
 	if os.IsNotExist(err) {
+
 		//不存在
 		err = os.MkdirAll(path, os.ModePerm)
 		if err != nil {
