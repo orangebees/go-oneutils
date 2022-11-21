@@ -2,9 +2,7 @@ package Fetch
 
 import (
 	"encoding/json"
-	"github.com/orangebees/go-oneutils/Convert"
 	"github.com/valyala/fasthttp"
-	"net/url"
 )
 
 type EasyJsonSerialization interface {
@@ -24,13 +22,9 @@ func UseCompressOption(req *fasthttp.Request) {
 	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 }
 
-// SetHostOption 设置host头
-func SetHostOption(req *fasthttp.Request) {
-	parse, err := url.Parse(Convert.B2S(req.RequestURI()))
-	if err != nil {
-		return
-	}
-	req.Header.SetHost(parse.Host)
+// SetHostHeadOption 设置host头
+func SetHostHeadOption(req *fasthttp.Request) {
+	req.Header.SetHostBytes(req.URI().Host())
 }
 
 // Json  json请求与响应

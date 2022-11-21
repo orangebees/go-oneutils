@@ -22,7 +22,7 @@ type Response struct {
 const (
 	// SuccessCode 成功 相当于200
 	SuccessCode = iota
-	// FailCode 失败 相当于500
+	// FailCode 失败/通用错误中止 相当于500
 	FailCode
 	// ParameterErrorCode 参数错误 相当于400
 	ParameterErrorCode
@@ -33,10 +33,11 @@ const (
 )
 
 const (
-	DefaultSuccessResponse        = `{"code":0,"msg":"ok"}`
-	DefaultFailResponse           = `{"code":1,"msg":"Unknown error"}`
-	DefaultParameterErrorResponse = `{"code":2,"msg":"Error or missing parameter"}`
-	DefaultAccessAbortedResponse  = `{"code":3,"msg":"AccessFail"}`
+	DefaultSuccessResponse           = `{"code":0,"msg":"ok"}`
+	DefaultFailResponse              = `{"code":1,"msg":"Unknown error"}`
+	DefaultSerializationFailResponse = `{"code":1,"msg":"Serialization error"}`
+	DefaultParameterErrorResponse    = `{"code":2,"msg":"Error or missing parameter"}`
+	DefaultAccessAbortedResponse     = `{"code":3,"msg":"AccessFail"}`
 )
 
 // IsSuccess 快速判断是否成功，仅用于此包内生成的响应字符串
@@ -58,7 +59,7 @@ func EasyJsonSuccess(data Fetch.EasyJsonSerialization) string {
 
 	marshal, err := data.MarshalJSON()
 	if err != nil {
-		return ""
+		return DefaultSerializationFailResponse
 	}
 	return `{"code":0,"msg":"ok","data":` + string(marshal) + "}"
 }
@@ -72,7 +73,7 @@ func Success(data any) string {
 		Data: data,
 	})
 	if err != nil {
-		return ""
+		return DefaultSerializationFailResponse
 	}
 	return string(marshal)
 }
