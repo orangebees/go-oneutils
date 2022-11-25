@@ -60,7 +60,7 @@ func (it Integrity) GetRawHashStringAndMod256() (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	t := xxhash.Sum64(hashRawValue) % 256
+	t := xxhash.Sum64(hashRawValue) & 255
 	return hex.EncodeToString(hashRawValue), string([]byte{hextable[t>>4], hextable[t%16]}), nil
 }
 func (it Integrity) GetRawHashStringAndMod(i uint64) (string, string, error) {
@@ -69,7 +69,7 @@ func (it Integrity) GetRawHashStringAndMod(i uint64) (string, string, error) {
 		return "", "", err
 	}
 	t := xxhash.Sum64(hashRawValue) % i
-	return hex.EncodeToString(hashRawValue), string([]byte{hextable[t>>4], hextable[t%16]}), nil
+	return hex.EncodeToString(hashRawValue), string([]byte{hextable[t>>4], hextable[t&15]}), nil
 }
 
 // NewIntegrity 新建Integrity实例
