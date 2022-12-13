@@ -61,7 +61,7 @@ func (it Integrity) GetRawHashStringAndMod256() (string, string, error) {
 		return "", "", err
 	}
 	t := xxhash.Sum64(hashRawValue) & 255
-	return hex.EncodeToString(hashRawValue), string([]byte{hextable[t>>4], hextable[t%16]}), nil
+	return hex.EncodeToString(hashRawValue), string([]byte{hextable[t>>4], hextable[t&15]}), nil
 }
 func (it Integrity) GetRawHashStringAndMod(i uint64) (string, string, error) {
 	hashRawValue, err := it.GetRawHashValue()
@@ -69,6 +69,16 @@ func (it Integrity) GetRawHashStringAndMod(i uint64) (string, string, error) {
 		return "", "", err
 	}
 	t := xxhash.Sum64(hashRawValue) % i
+	return hex.EncodeToString(hashRawValue), string([]byte{hextable[t>>4], hextable[t&15]}), nil
+}
+
+// GetRawHashStringAndModFast 获取原始hash字符串并且快速取模（i为16的n次方）
+func (it Integrity) GetRawHashStringAndModFast(i uint64) (string, string, error) {
+	hashRawValue, err := it.GetRawHashValue()
+	if err != nil {
+		return "", "", err
+	}
+	t := xxhash.Sum64(hashRawValue) & (i - 1)
 	return hex.EncodeToString(hashRawValue), string([]byte{hextable[t>>4], hextable[t&15]}), nil
 }
 

@@ -27,6 +27,13 @@ func SetHostHeadOption(req *fasthttp.Request) {
 	req.Header.SetHostBytes(req.URI().Host())
 }
 
+// SetCustomHostHeadOption  设置用户自定义host头
+func SetCustomHostHeadOption(host string) Option {
+	return func(req *fasthttp.Request) {
+		req.Header.SetHost(host)
+	}
+}
+
 // Json  json请求与响应
 func Json(endpoint string, reqData any, respData any, options ...Option) error {
 	req := fasthttp.AcquireRequest()

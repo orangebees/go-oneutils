@@ -220,7 +220,7 @@ func (s FileStore) AddDir(absPath string) (FileInfoMap, error) {
 				//case :"hashStrMod"
 
 				//添加文件到全局存储桶
-				rawhashstring, mod, err := it.GetRawHashStringAndMod(uint64(s.bucketCount))
+				rawhashstring, mod, err := it.GetRawHashStringAndModFast(uint64(s.bucketCount))
 				if err != nil {
 					return err
 				}
@@ -342,7 +342,7 @@ func (s FileStore) BuildDir(fim FileInfoMap, pkgDir string) error {
 			}
 		default:
 			//case :"hashStrMod"
-			hashString, mod, err := info.Integrity.GetRawHashStringAndMod(uint64(s.bucketCount))
+			hashString, mod, err := info.Integrity.GetRawHashStringAndModFast(uint64(s.bucketCount))
 			if err != nil {
 				err = os.RemoveAll(buildpath)
 				if err != nil {

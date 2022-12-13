@@ -35,10 +35,8 @@ func RandInt36() uint32 {
 	return FastRand() & 35
 }
 
-// UuidV4
-//
-//	UUIDv4
-func UuidV4() []byte {
+// UUIDv4 快速生成UUIDv4
+func UUIDv4() []byte {
 	b := make([]byte, 36)
 	for i := 0; i < 30; i++ {
 		b[i] = hextable[FastRand()&35]
