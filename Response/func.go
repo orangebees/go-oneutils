@@ -18,6 +18,19 @@ type Response struct {
 	Data any    `json:"data,omitempty"`
 }
 
+func (r *Response) IsSuccess() bool {
+	if r.Code != 0 {
+		return false
+	}
+	return true
+}
+func (r *EasyJsonResponse) IsSuccess() bool {
+	if r.Code != 0 {
+		return false
+	}
+	return true
+}
+
 // 0-9 为保留状态码
 const (
 	// SuccessCode 成功 相当于200

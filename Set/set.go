@@ -4,7 +4,7 @@ import "sync"
 
 type Set map[string]struct{}
 
-func NewSet() Set {
+func New() Set {
 	return make(map[string]struct{}, 64)
 }
 func (s Set) SAdd(strs ...string) {

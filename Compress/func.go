@@ -67,3 +67,26 @@ func TarDirToByteBuffer(rpath string, compress string) (*bytebufferpool.ByteBuff
 	}
 	return b2, nil
 }
+
+// TarDirToFile tar归档目录，并写入到topath中
+func TarDirToFile(rpath string, compress string, topath string) error {
+	buffer, err := TarDirToByteBuffer(rpath, compress)
+	if err != nil {
+		return err
+	}
+	defer bytebufferpool.Put(buffer)
+	var suffix string
+	switch compress {
+	case "br":
+		suffix = ".tar.br"
+	case "gz":
+		suffix = ".tar.gz"
+	default:
+		suffix = ".tar"
+	}
+	err = os.WriteFile(topath+suffix, buffer.B, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	return nil
+}
