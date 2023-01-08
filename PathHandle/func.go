@@ -17,14 +17,17 @@ const hextable = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 // RunInTempDir 在缓存目录中工作
 func RunInTempDir(f func(tmppath string) error) error {
 	p := os.TempDir() + Separator + Convert.B2S(Random.RandBytes32())
-	err := f(p)
+	err := KeepDirExist(p)
 	if err != nil {
 		return err
 	}
-	err = os.RemoveAll(p)
+	defer os.RemoveAll(p)
+
+	err = f(p)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
