@@ -394,9 +394,20 @@ func (s FileStore) VerifyDir(fim FileInfoMap, absPath string) (bool, error) {
 	return result, nil
 }
 
-// GetMetadataPath 获取metadata的理论路径
+// GetMetadataPath 获取metadata的理论绝对路径
 func (s FileStore) GetMetadataPath(pkgDir string) (string, error) {
 	p := s.metadata + Separator + PathHandle.URLToLocalDirPath(pkgDir)
+	dir, _ := filepath.Split(p)
+	err := PathHandle.KeepDirExist(dir)
+	if err != nil {
+		return "", err
+	}
+	return p, nil
+}
+
+// GetDirPath 获取pkgDir的理论绝对路径
+func (s FileStore) GetDirPath(pkgDir string) (string, error) {
+	p := s.build + Separator + PathHandle.URLToLocalDirPath(pkgDir)
 	dir, _ := filepath.Split(p)
 	err := PathHandle.KeepDirExist(dir)
 	if err != nil {
