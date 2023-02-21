@@ -369,7 +369,13 @@ func (s FileStore) Link(pkgDir, targetAbsPath string) error {
 	if !filepath.IsAbs(targetAbsPath) {
 		return errors.New("the path is not absolute")
 	}
-	err := PathHandle.KeepDirExist(targetAbsPath)
+	var tmp string
+	for i := len(targetAbsPath) - 1; i >= 0; i-- {
+		if targetAbsPath[i] == filepath.Separator {
+			tmp = targetAbsPath[i+1:]
+		}
+	}
+	err := PathHandle.KeepDirExist(tmp)
 	if err != nil {
 		return err
 	}
